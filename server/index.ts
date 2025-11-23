@@ -3,6 +3,10 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
+import dns from "node:dns";
+
+// Force IPv4 to avoid Supabase connection issues (ENETUNREACH)
+dns.setDefaultResultOrder('ipv4first');
 
 const app = express();
 
