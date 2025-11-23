@@ -13,31 +13,34 @@ export const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: false,
   error: null,
-  refreshUser: () => {}
+  refreshUser: () => { }
 });
 
 type AuthProviderProps = {
   children: ReactNode;
 };
 
+// Production backend URL
+const BASE_URL = 'https://daan-darpan-backend.onrender.com';
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const queryClient = useQueryClient();
-  
+
   const { data, isLoading, error, refetch } = useQuery<AuthUser | null>({
     queryKey: ['/api/auth/user'],
     queryFn: async () => {
-      const res = await fetch('/api/auth/user', {
+      const res = await fetch(`${BASE_URL}/api/auth/user`, {
         credentials: 'include',
       });
-      
+
       if (res.status === 401) {
         return null; // Not authenticated
       }
-      
+
       if (!res.ok) {
         throw new Error(`Failed to fetch user: ${res.status}`);
       }
-      
+
       return res.json();
     },
     retry: false,
@@ -45,16 +48,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
     refetchOnMount: true,
     staleTime: 2 * 60 * 1000
   });
-  
+
   // Function to force refresh user data
   const refreshUser = () => {
     refetch();
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user: data || null, 
-      isLoading, 
+    <AuthContext.Provider value={{
+      user: data || null,
+      isLoading,
       error: error as Error,
       refreshUser
     }}>

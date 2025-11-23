@@ -13,7 +13,8 @@ export type AuthUser = {
 
 export async function logout() {
   try {
-    await fetch("/api/auth/logout", {
+    const BASE_URL = 'https://daan-darpan-backend.onrender.com';
+    await fetch(`${BASE_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
