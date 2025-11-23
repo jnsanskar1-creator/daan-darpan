@@ -1,0 +1,40 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Cream/Beige background like the logo -->
+  <rect width="192" height="192" rx="32" fill="#F5F5DC"/>
+  
+  <!-- Temple design based on the provided logo -->
+  <g transform="translate(48, 40)">
+    <!-- Main temple spire/tower -->
+    <polygon points="48,10 35,25 61,25" fill="#8B4513"/>
+    <rect x="40" y="25" width="16" height="8" fill="#8B4513"/>
+    
+    <!-- Temple dome/kalash -->
+    <circle cx="48" cy="20" r="4" fill="#DAA520"/>
+    <rect x="47" y="16" width="2" height="8" fill="#DAA520"/>
+    
+    <!-- Main temple structure -->
+    <rect x="25" y="33" width="46" height="30" fill="#D2B48C"/>
+    <rect x="20" y="60" width="56" height="8" fill="#8B4513"/>
+    
+    <!-- Temple pillars -->
+    <rect x="28" y="40" width="4" height="23" fill="#8B4513"/>
+    <rect x="36" y="40" width="4" height="23" fill="#8B4513"/>
+    <rect x="44" y="40" width="4" height="23" fill="#8B4513"/>
+    <rect x="52" y="40" width="4" height="23" fill="#8B4513"/>
+    <rect x="60" y="40" width="4" height="23" fill="#8B4513"/>
+    
+    <!-- Temple entrance -->
+    <rect x="44" y="50" width="8" height="13" fill="#654321"/>
+    
+    <!-- Temple steps -->
+    <rect x="15" y="68" width="66" height="4" fill="#A0522D"/>
+    <rect x="10" y="72" width="76" height="4" fill="#A0522D"/>
+    
+    <!-- Small flag on top -->
+    <polygon points="48,8 50,8 50,12 48,10" fill="#FF6B35"/>
+  </g>
+  
+  <!-- App branding in Hindi like the logo -->
+  <text x="96" y="150" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#8B4513">दान-दर्पण</text>
+  <text x="96" y="170" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" fill="#654321">Temple Management</text>
+</svg>

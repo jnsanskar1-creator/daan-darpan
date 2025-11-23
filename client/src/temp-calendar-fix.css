@@ -1,0 +1,19 @@
+/* Fix for consecutive months in date picker */
+.react-datepicker__month-container:nth-child(1) .react-datepicker__current-month::after {
+  content: attr(data-month);
+}
+
+.react-datepicker__month-container:nth-child(2) .react-datepicker__current-month::after {
+  content: attr(data-next-month);
+}
+
+/* Ensure proper display of two consecutive months */
+.react-datepicker__month-container:nth-child(2) {
+  margin-left: 0;
+}
+
+/* Force display of consecutive months */
+.react-datepicker {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+}

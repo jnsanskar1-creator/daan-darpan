@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.appmaker.canfrz",
+      "sha256_cert_fingerprints": ["73:FA:8B:D7:59:6B:7B:B1:63:BE:5E:B8:50:09:E6:0A:AA:79:50:29:40:3F:35:BE:90:D5:1A:93:4A:73:10:C1"]
+    }
+  }
+]

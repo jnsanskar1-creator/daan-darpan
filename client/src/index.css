@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* DatePicker Custom Styles - Google Flights style */
+.react-datepicker {
+  @apply shadow-lg border-0 rounded-lg font-sans !important;
+  width: auto !important;
+}
+
+.react-datepicker-wrapper {
+  @apply w-full;
+}
+
+.react-datepicker__month-container {
+  @apply float-left w-64;
+}
+
+.react-datepicker__header {
+  @apply bg-transparent border-b-0 rounded-none py-2 !important;
+}
+
+.react-datepicker__current-month {
+  @apply text-lg font-medium mb-4 !important;
+}
+
+.react-datepicker__day-names {
+  @apply flex justify-around mt-2;
+}
+
+.react-datepicker__day-name {
+  @apply text-xs text-neutral-500 w-8 !important;
+}
+
+.react-datepicker__month {
+  @apply m-0 !important;
+}
+
+.react-datepicker__week {
+  @apply flex justify-around;
+}
+
+.react-datepicker__day {
+  @apply w-8 h-8 m-0 text-sm rounded-full flex items-center justify-center cursor-pointer hover:bg-neutral-100 !important;
+  line-height: 2rem !important;
+}
+
+.react-datepicker__day--keyboard-selected, 
+.react-datepicker__day--selected {
+  @apply bg-primary text-white hover:bg-primary/90 !important;
+}
+
+.react-datepicker__day--in-selecting-range, 
+.react-datepicker__day--in-range {
+  @apply bg-primary/20 text-primary rounded-none !important;
+}
+
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+  @apply bg-primary text-white rounded-full !important;
+}
+
+.react-datepicker__triangle {
+  @apply hidden !important;
+}
+
+.react-datepicker__navigation {
+  @apply top-4 !important;
+}
+
+.react-datepicker__navigation--previous {
+  @apply left-2 !important;
+}
+
+.react-datepicker__navigation--next {
+  @apply right-2 !important;
+}
+
+/* Month header styling */
+.react-datepicker__header {
+  @apply py-4 !important;
+}
+
+.datepicker-container {
+  @apply relative;
+}
+
+/* Make popover container large enough for two months */
+.react-datepicker-popper {
+  @apply z-50;
+  min-width: 36rem;
+}
+
+/* Done button styling */
+.datepicker-done-btn {
+  @apply mt-2 px-4 py-2 bg-primary text-white rounded-md float-right mr-4 mb-2;
+}
+
+/* Multi-month layout fixes */
+.react-datepicker__month-container + .react-datepicker__month-container {
+  @apply border-l border-neutral-200;
+}
+
+/* Custom styling to fix calendar display */
+.react-datepicker {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+/* Ensure second calendar shows next month */
+.react-datepicker .react-datepicker__month-container:nth-child(2) {
+  margin-left: 1rem !important;
+}
+
+/* Custom styling for second month display */
+.react-datepicker .react-datepicker__month-container:nth-child(2) {
+  position: relative;
+}
+
+/* Add a "June 2025" label for the second month */
+.react-datepicker .react-datepicker__month-container:nth-child(2)::before {
+  content: "June 2025";
+  position: absolute;
+  top: 1rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* Hide the original second month header which would show May 2025 */
+.react-datepicker__month-container:nth-child(2) .react-datepicker__current-month {
+  visibility: hidden !important;
+}
+
+/* Fix specific styling for month containers */
+.react-datepicker__month-container {
+  width: 280px !important;
+  margin: 0 !important;
+}
+
+/* Force Datepicker to use separate month containers */
+.react-datepicker__month--selected {
+  background-color: transparent !important;
+}
