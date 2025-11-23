@@ -9,6 +9,7 @@ import dns from "node:dns";
 dns.setDefaultResultOrder('ipv4first');
 
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (Render)
 
 // Configure CORS
 app.use(cors({

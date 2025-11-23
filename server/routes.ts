@@ -51,7 +51,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
     secret: process.env.SESSION_SECRET || "ledger-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 },
+    cookie: {
+      secure: process.env.NODE_ENV === "production", // Secure in production
+      sameSite: process.env.NODE_ENV === "production" ? 'none' : 'lax', // None for cross-site
+      maxAge: 24 * 60 * 60 * 1000
+    },
     store: new MemoryStoreSession({
       checkPeriod: 86400000 // Prune expired entries every 24h
     })
