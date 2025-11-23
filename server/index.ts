@@ -92,6 +92,39 @@ app.use((req, res, next) => {
   const port = parseInt(process.env.PORT || defaultPort);
   const host = process.env.HOST || "0.0.0.0";
 
+  // Check if admin user exists
+  try {
+    const { storage } = await import("./storage");
+    const bcrypt = await import("bcrypt");
+
+    console.log("Checking for admin user...");
+    const adminUser = await storage.getUserByUsername("admin");
+
+    if (!adminUser) {
+      console.log("Admin user not found. Creating default admin...");
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      await storage.createUser({
+        username: "admin",
+        password: hashedPassword,
+        name: "Administrator",
+        email: "admin@example.com",
+        role: "admin",
+        status: "active",
+        mobile: "",
+        address: ""
+      });
+      console.log("Default admin created successfully.");
+    } else {
+      console.log("Admin user found:", adminUser.username);
+      // Reset password just in case
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      await storage.updateUser(adminUser.id, { password: hashedPassword });
+      console.log("Admin password reset to 'admin123' to ensure access.");
+    }
+  } catch (err) {
+    console.error("Error checking/creating admin user:", err);
+  }
+
   server.listen({
     port,
     host,
