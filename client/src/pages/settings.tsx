@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, Database, Settings as SettingsIcon } from "lucide-react";
+import { Download, Database, Settings as SettingsIcon, Upload } from "lucide-react";
 
 // Profile update schema
 const profileSchema = z.object({
@@ -188,6 +188,57 @@ export default function Settings() {
         title: "Logout failed",
         description: "An error occurred during logout",
       });
+    }
+  };
+
+  // Database restore mutation
+  const restoreMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Use fetch directly for FormData since apiRequest expects JSON
+      const response = await fetch('/api/database/restore', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Restore failed');
+      }
+
+      return response.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Restore Successful",
+        description: `Restored: ${Object.entries(data.stats).map(([k, v]: any) => `${k}: ${v.inserted}`).join(', ')}`,
+      });
+      // Invalidate all queries
+      queryClient.invalidateQueries();
+    },
+    onError: (error) => {
+      toast({
+        title: "Restore Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const handleRestoreClick = () => {
+    document.getElementById('restore-file-input')?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (confirm("WARNING: This will WIPE ALL existing data and replace it with the backup file. This action cannot be undone. Continue?")) {
+        restoreMutation.mutate(file);
+      }
+      // Reset input
+      e.target.value = '';
     }
   };
 
@@ -419,47 +470,70 @@ export default function Settings() {
               Database Management
             </CardTitle>
             <CardDescription>
-              Create and email database backup to all operators
+              Backup and restore database data
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800 mb-2">
-                  <strong>Database Backup Features:</strong>
+                  <strong>Database Management Features:</strong>
                 </p>
                 <ul className="text-sm text-blue-700 list-disc list-inside space-y-1">
-                  <li>Exports all database tables as Excel sheets (6 worksheets)</li>
-                  <li>Includes: Users, Boli Entries, Advance Payments, Dravya Entries, Expense Entries, Transaction Logs</li>
-                  <li>Automatically downloads backup file to your device</li>
-                  <li>Emails backup to all operators (requires SendGrid API key)</li>
-                  <li>Timestamp included in filename: Database_Backup_YYYY-MM-DD.xlsx</li>
+                  <li><strong>Backup:</strong> Exports all data to Excel and emails it to operators.</li>
+                  <li><strong>Restore:</strong> Import data from an Excel backup file.</li>
+                  <li>Restore will <strong>merge</strong> data: New records are added, existing IDs are skipped.</li>
                 </ul>
-                <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                  <p className="text-xs text-yellow-800">
-                    <strong>Note:</strong> Email functionality requires SendGrid API key configuration.
-                    Without it, backup will still be created and downloaded locally.
-                  </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Button
+                  onClick={handleBackup}
+                  disabled={backupMutation.isPending}
+                  className="w-full"
+                  variant="outline"
+                >
+                  {backupMutation.isPending ? (
+                    <>
+                      <Database className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Backup...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" />
+                      Download Backup
+                    </>
+                  )}
+                </Button>
+
+                <div className="w-full">
+                  <input
+                    type="file"
+                    id="restore-file-input"
+                    accept=".xlsx, .xls"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <Button
+                    onClick={handleRestoreClick}
+                    disabled={restoreMutation.isPending}
+                    className="w-full"
+                    variant="default"
+                  >
+                    {restoreMutation.isPending ? (
+                      <>
+                        <Database className="mr-2 h-4 w-4 animate-spin" />
+                        Restoring...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Restore from Excel
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
-              <Button
-                onClick={handleBackup}
-                disabled={backupMutation.isPending}
-                className="w-full"
-                variant="default"
-              >
-                {backupMutation.isPending ? (
-                  <>
-                    <Database className="mr-2 h-4 w-4 animate-spin" />
-                    Creating Backup...
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-4 w-4" />
-                    Create & Download Database Backup
-                  </>
-                )}
-              </Button>
             </div>
           </CardContent>
         </Card>
