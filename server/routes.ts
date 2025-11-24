@@ -3158,6 +3158,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await query(`DELETE FROM corpus_settings`);
       await query(`DELETE FROM users`);
 
+      // Disable foreign key constraints for this session
+      // This allows us to insert data in any order without FK violations
+      console.log("Disabling foreign key constraints...");
+      await query(`SET session_replication_role = 'replica'`);
+
       const stats: Record<string, { total: number, inserted: number, errors: number }> = {};
 
       for (const sheetName of restoreOrder) {
@@ -3266,10 +3271,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error("Error resetting sequences:", seqErr);
       }
 
+      // Re-enable foreign key constraints
+      console.log("Re-enabling foreign key constraints...");
+      await query(`SET session_replication_role = 'origin'`);
+
       res.json({ message: "Restore completed successfully", stats });
 
     } catch (error) {
       console.error("Restore error:", error);
+      // Re-enable foreign key constraints even on error
+      try {
+        await query(`SET session_replication_role = 'origin'`);
+      } catch (e) {
+        console.error("Failed to re-enable FK constraints:", e);
+      }
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
