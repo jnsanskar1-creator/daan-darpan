@@ -87,9 +87,9 @@ app.use((req, res, next) => {
   // doesn't interfere with the other routes
   if (app.get("env") === "development") {
     await setupVite(app, server);
-  } else {
-    serveStatic(app);
   }
+  // In production, frontend is served separately on Render Static Site
+  // so we don't need to serve static files from the backend
 
   // Serve the app on configurable port
   // Use 5000 for Replit development, 8484 for deployment
