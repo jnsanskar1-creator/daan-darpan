@@ -83,7 +83,17 @@ export default function Dashboard() {
 
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ['/api/dashboard', startDate?.toISOString(), endDate?.toISOString()],
-    queryFn: () => fetch(`/api/dashboard?${queryParams.toString()}`).then(res => res.json()),
+    queryFn: () => {
+      const baseUrl = import.meta.env.MODE === 'production'
+        ? 'https://daan-darpan-backend.onrender.com'
+        : '';
+      return fetch(`${baseUrl}/api/dashboard?${queryParams.toString()}`, {
+        credentials: 'include'
+      }).then(res => {
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        return res.json();
+      });
+    },
     // Increase refetch intervals for fresher data
     refetchOnMount: true,
     refetchOnWindowFocus: true,

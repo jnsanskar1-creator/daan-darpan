@@ -3187,8 +3187,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const rowValues = keys.map(k => {
             let val = row[k];
-            if ((k === 'payments' || k === 'details') && typeof val === 'string') {
-              try { val = JSON.parse(val); } catch (e) { }
+            // Handle JSON fields - if they're objects, stringify them for PostgreSQL
+            if ((k === 'payments' || k === 'details') && typeof val === 'object' && val !== null) {
+              try {
+                val = JSON.stringify(val);
+              } catch (e) {
+                console.error(`Failed to stringify ${k}:`, e);
+              }
             }
             return val;
           });
