@@ -3188,8 +3188,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const rowValues = keys.map(k => {
             let val = row[k];
 
-            // Skip null/undefined values
+            // Skip null/undefined values (but handle file_url specially)
             if (val === null || val === undefined || val === '') {
+              // file_url has NOT NULL constraint in production, provide default
+              if (k === 'file_url') {
+                return '';
+              }
               return null;
             }
 
