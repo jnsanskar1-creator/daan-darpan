@@ -204,8 +204,16 @@ export default function Settings() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Restore failed');
+        let errorMessage = 'Restore failed';
+        try {
+          const error = await response.json();
+          errorMessage = error.message || errorMessage;
+        } catch (e) {
+          // If JSON parsing fails, try to get text
+          const text = await response.text();
+          errorMessage = text || `Server error (${response.status})`;
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();
