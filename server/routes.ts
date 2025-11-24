@@ -3221,23 +3221,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
 
           // Use UPSERT to handle duplicate IDs (from previous failed restores)
-          // Create SET clause for all columns except id
+          // Use EXCLUDED to reference the values we're trying to insert
           const updateClauses = keys
             .filter(k => k !== 'id')
-            .map((k, i) => `"${k}" = $${i + 1}`)
+            .map(k => `"${k}" = EXCLUDED."${k}"`)
             .join(", ");
 
           const sql = `
-              INSERT INTO "${tableName}" (${columns}) 
-              VALUES (${valuesPlaceholder})
-              ON CONFLICT (id) DO UPDATE SET ${updateClauses}
-            `;
+            INSERT INTO "${tableName}" (${columns}) 
+            VALUES (${valuesPlaceholder})
+            ON CONFLICT (id) DO UPDATE SET ${updateClauses}
+          `;
 
           try {
             await query(sql, rowValues);
             stats[tableName].inserted++;
           } catch (err) {
-            console.error(`Failed to insert into ${tableName} (ID: ${row.id}):`, err);
+            console.error(`Failed to insert into ${tableName} (ID: ${row.id}): `, err);
             stats[tableName].errors++;
           }
         }
@@ -3352,7 +3352,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if amount is less than already received
         if (amount < receivedAmount) {
           return res.status(400).json({
-            message: `Outstanding amount cannot be less than already received amount of ₹${receivedAmount.toLocaleString()}`
+            message: `Outstanding amount cannot be less than already received amount of ₹${receivedAmount.toLocaleString()} `
           });
         }
 
@@ -3397,7 +3397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Handle file upload if provided
       if (req.file) {
-        updateData.attachmentUrl = `/uploads/${req.file.filename}`;
+        updateData.attachmentUrl = `/ uploads / ${req.file.filename} `;
         updateData.attachmentName = req.file.originalname;
       }
 
@@ -3450,7 +3450,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check if amount is less than already received
         if (amountFloat < existingRecord.receivedAmount) {
           return res.status(400).json({
-            message: `Outstanding amount cannot be less than already received amount of ₹${existingRecord.receivedAmount.toLocaleString()}`
+            message: `Outstanding amount cannot be less than already received amount of ₹${existingRecord.receivedAmount.toLocaleString()} `
           });
         }
 
@@ -3509,13 +3509,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const updatedPayments = [...existingRecord.payments];
           updatedPayments[0] = {
             ...updatedPayments[0],
-            fileUrl: `/uploads/${req.file.filename}`,
+            fileUrl: `/ uploads / ${req.file.filename} `,
             updatedBy: currentUser.username
           };
           updateData.payments = updatedPayments;
         } else {
           // If no payments exist, store file URL in attachment fields for now
-          updateData.attachmentUrl = `/uploads/${req.file.filename}`;
+          updateData.attachmentUrl = `/ uploads / ${req.file.filename} `;
           updateData.attachmentName = req.file.originalname;
         }
       }
@@ -3578,7 +3578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const result = {
         ...record,
-        userName: record.userName || `User ID ${record.userId}`, // Fallback if user not found
+        userName: record.userName || `User ID ${record.userId} `, // Fallback if user not found
         receivedAmount,
         pendingAmount,
         status,
@@ -3608,7 +3608,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (record.payments && Array.isArray(record.payments) && record.payments.length > 0) {
           record.payments.forEach((payment, paymentIndex) => {
             allPayments.push({
-              id: `${record.id}-payment-${paymentIndex}`,
+              id: `${record.id} -payment - ${paymentIndex} `,
               recordId: record.id,
               recordNumber: record.recordNumber,
               userId: record.userId,
@@ -3634,7 +3634,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // If record has receivedAmount but no payments array, create a synthetic entry
         else if (record.receivedAmount > 0) {
           allPayments.push({
-            id: `${record.id}-payment-legacy`,
+            id: `${record.id} -payment - legacy`,
             recordId: record.id,
             recordNumber: record.recordNumber,
             userId: record.userId,
@@ -3714,7 +3714,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (!details.receiptNo) continue;
 
         if (typeof details.receiptNo === 'string' &&
-          details.receiptNo.startsWith(`AM-2025-`)) {
+          details.receiptNo.startsWith(`AM - 2025 - `)) {
 
           const match = details.receiptNo.match(/AM-\d{4}-(\d{5})/);
           if (match && match[1]) {
@@ -3766,7 +3766,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       for (const { recordId, payment, index } of allPayments) {
         const year = payment.date.split('-')[0];
         const newNumber = getNextValidOutstandingNumber();
-        const newReceiptNo = `SPDJMSJ-${year}-${newNumber.toString().padStart(5, '0')}`;
+        const newReceiptNo = `SPDJMSJ - ${year} -${newNumber.toString().padStart(5, '0')} `;
 
         if (!recordUpdates.has(recordId)) {
           const record = records.find(r => r.id === recordId);
@@ -3806,7 +3806,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       res.json({
-        message: `Updated ${updatedCount} missing receipt numbers and revised ${revisedCount} existing ones to new block system (starting from 201)`,
+        message: `Updated ${updatedCount} missing receipt numbers and revised ${revisedCount} existing ones to new block system(starting from 201)`,
         updatedCount,
         revisedCount
       });
@@ -3849,11 +3849,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           fs.mkdirSync(uploadDir, { recursive: true });
         }
 
-        const filename = `previous-outstanding-${Date.now()}-${req.file.originalname}`;
+        const filename = `previous - outstanding - ${Date.now()} -${req.file.originalname} `;
         const filepath = path.join(uploadDir, filename);
 
         fs.renameSync(req.file.path, filepath);
-        attachmentUrl = `/uploads/${filename}`;
+        attachmentUrl = `/ uploads / ${filename} `;
         attachmentName = req.file.originalname;
       }
 
@@ -3870,7 +3870,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         attachmentName
       }).returning();
 
-      console.log(`Previous outstanding record created: ₹${validationData.outstandingAmount / 100} for user ${validationData.userName} by ${validationData.createdBy}`);
+      console.log(`Previous outstanding record created: ₹${validationData.outstandingAmount / 100} for user ${validationData.userName} by ${validationData.createdBy} `);
       res.json(record);
     } catch (error) {
       console.error("Error creating previous outstanding record:", error);
@@ -3911,7 +3911,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate file upload for non-cash payments
       let fileUrl = null;
       if (req.file) {
-        fileUrl = `/uploads/${req.file.filename}`;
+        fileUrl = `/ uploads / ${req.file.filename} `;
       }
 
       // Require file upload for non-cash payment modes
@@ -4008,7 +4008,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Set appropriate headers for Excel download
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('Content-Disposition', `attachment; filename = "${filename}"`);
 
       // Stream the file
       const fileStream = fs.createReadStream(filepath);
@@ -4079,7 +4079,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         [result] = await db.insert(corpusSettings).values(validatedData).returning();
       }
 
-      console.log(`Corpus settings updated by ${user.username}: ₹${req.body.corpusValue} as of ${validatedData.baseDate}`);
+      console.log(`Corpus settings updated by ${user.username}: ₹${req.body.corpusValue} as of ${validatedData.baseDate} `);
       res.json(result);
     } catch (error) {
       console.error("Error updating corpus settings:", error);
@@ -4135,7 +4135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             try {
               payments = typeof row.payments === 'string' ? JSON.parse(row.payments) : row.payments;
             } catch (e) {
-              console.warn(`Failed to parse payments for record ID ${row.id}`);
+              console.warn(`Failed to parse payments for record ID ${row.id} `);
             }
           }
 
@@ -4162,7 +4162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           inserted++;
         } catch (error) {
-          console.error(`Error inserting record:`, error);
+          console.error(`Error inserting record: `, error);
           errors++;
           errorDetails.push({ row, error: error instanceof Error ? error.message : String(error) });
         }
