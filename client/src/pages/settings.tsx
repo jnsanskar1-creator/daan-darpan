@@ -197,10 +197,15 @@ export default function Settings() {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Use fetch directly for FormData since apiRequest expects JSON
-      const response = await fetch('/api/database/restore', {
+      // Use full backend URL in production, relative path in development
+      const baseUrl = import.meta.env.MODE === 'production'
+        ? 'https://daan-darpan-backend.onrender.com'
+        : '';
+
+      const response = await fetch(`${baseUrl}/api/database/restore`, {
         method: 'POST',
         body: formData,
+        credentials: 'include', // Important for cookies
       });
 
       if (!response.ok) {
