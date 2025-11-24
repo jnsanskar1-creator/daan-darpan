@@ -3198,7 +3198,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return val;
           });
 
-          const sql = `INSERT INTO "${tableName}" (${columns}) VALUES (${valuesPlaceholder})`;
+          // Use UPSERT to handle duplicate IDs (from previous failed restores)
+          // Create SET clause for all columns except id
+          const updateClauses = keys
+            .filter(k => k !== 'id')
+            .map((k, i) => `"${k}" = $${i + 1}`)
+            .join(", ");
+
+          const sql = `
+              INSERT INTO "${tableName}" (${columns}) 
+              VALUES (${valuesPlaceholder})
+              ON CONFLICT (id) DO UPDATE SET ${updateClauses}
+            `;
 
           try {
             await query(sql, rowValues);
