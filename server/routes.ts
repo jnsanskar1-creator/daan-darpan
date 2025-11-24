@@ -3187,14 +3187,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
           const rowValues = keys.map(k => {
             let val = row[k];
+
+            // Skip null/undefined values
+            if (val === null || val === undefined || val === '') {
+              return null;
+            }
+
             // Handle JSON fields - if they're objects, stringify them for PostgreSQL
-            if ((k === 'payments' || k === 'details') && typeof val === 'object' && val !== null) {
+            if ((k === 'payments' || k === 'details') && typeof val === 'object') {
               try {
                 val = JSON.stringify(val);
               } catch (e) {
                 console.error(`Failed to stringify ${k}:`, e);
               }
+              return val;
             }
+
+            // Convert numeric string fields to numbers
+            // These fields should be numbers based on database schema
+            const numericFields = [
+              'id', 'serial_number', 'user_id', 'amount', 'quantity', 'total_amount',
+              'pending_amount', 'received_amount', 'outstanding_amount', 'entry_id',
+              'advance_payment_id', 'payment_id', 'record_id', 'boli_payment_id',
+              'corpus_value', 'payment_amount', 'usage_amount', 'remaining_balance'
+            ];
+
+            if (numericFields.includes(k) && typeof val === 'string') {
+              const parsed = parseFloat(val);
+              return isNaN(parsed) ? null : parsed;
+            }
+
             return val;
           });
 
